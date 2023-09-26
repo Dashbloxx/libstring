@@ -6,7 +6,7 @@ It's features include support for formatting, such as:
 string_t string;
 string_create(&string);
 string_setf(&string, "Hello, world!\nHere's a number: %d\n", 12345);
-puts(string->pointer);
+puts(string.pointer);
 string_destroy(&string);
 ```
 Or if you want to append text, like:

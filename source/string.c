@@ -44,20 +44,28 @@ int string_append(string_t * string0, char * string1)
         return -2;
     }
 
-    string0->size += strlen(string1);
-    string0->pointer = realloc(string0->pointer, string0->size);
+    size_t length = strlen(string1);
 
-    if(string0->size != 0 && string0->pointer == NULL)
+    size_t newsize = string0->size + length + 1;
+
+    char * newptr = (char *)realloc(string0->pointer, newsize);
+
+    if(newptr == NULL)
     {
         return -1;
     }
 
+    strcpy(newptr + string0->size, string1);
+    string0->pointer = newptr;
+    string0->size = newsize - 1;
+
     return 0;
 }
 
+
 int string_appendf(string_t * string, char * format, ...)
 {
-    if (string == NULL || format == NULL)
+    if(string == NULL || format == NULL)
     {
         return -3;
     }
@@ -65,18 +73,27 @@ int string_appendf(string_t * string, char * format, ...)
     va_list args;
     va_start(args, format);
 
-    int length = vsnprintf(NULL, 0, format, args);
-    
-    char * formatted_string = (char *)malloc((length + 1) * sizeof(char));
-    
-    if (formatted_string == NULL)
+    int length = vsnprintf(NULL, 0, format, args) + 1;
+
+    va_end(args);
+
+    if(length <= 0)
+    {
+        return -4;
+    }
+
+    va_start(args, format);
+
+    char * formatted_string = (char *)malloc(length * sizeof(char));
+
+    if(formatted_string == NULL)
     {
         va_end(args);
         return -4;
     }
 
-    vsnprintf(formatted_string, length + 1, format, args);
-    
+    vsnprintf(formatted_string, length, format, args);
+
     va_end(args);
 
     int result = string_append(string, formatted_string);
@@ -95,18 +112,27 @@ int string_setf(string_t * string, char * format, ...)
     va_list args;
     va_start(args, format);
 
-    int length = vsnprintf(NULL, 0, format, args);
-    
-    char *formatted_str = (char *)malloc((length + 1) * sizeof(char)); 
-    
-    if(formatted_str == NULL)
+    int length = vsnprintf(NULL, 0, format, args) + 1;
+
+    va_end(args);
+
+    if(length <= 0)
+    {
+        return -1;
+    }
+
+    va_start(args, format);
+
+    char * formattedstring = (char *)malloc(length * sizeof(char));
+
+    if(formattedstring == NULL)
     {
         va_end(args);
         return -1;
     }
 
-    vsnprintf(formatted_str, length + 1, format, args);
-    
+    vsnprintf(formattedstring, length, format, args);
+
     va_end(args);
 
     if(string->pointer != NULL)
@@ -114,8 +140,8 @@ int string_setf(string_t * string, char * format, ...)
         free(string->pointer);
     }
 
-    string->size = length;
-    string->pointer = formatted_str;
+    string->size = length - 1;
+    string->pointer = formattedstring;
 
     return 0;
 }
