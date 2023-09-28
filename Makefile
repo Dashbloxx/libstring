@@ -6,8 +6,8 @@ SRC_DIR := source
 BUILD_DIR := build
 LIB_DIR := .
 
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,source/%.o,$(SRC_FILES))
+SRC_FILES := $(wildcard *.c)
+OBJ_FILES := $(patsubst %.c,%.o,$(SRC_FILES))
 STATIC_LIB := libstring.a
 SHARED_LIB := libstring.so
 
@@ -21,9 +21,9 @@ $(STATIC_LIB): $(OBJ_FILES)
 $(SHARED_LIB): $(OBJ_FILES)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-source/%.o: $(SRC_DIR)/%.c
+%.o: %.c
 	mkdir -p source
 	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
 
 clean:
-	rm -rf source/*.o $(STATIC_LIB) $(SHARED_LIB)
+	rm -rf *.o $(STATIC_LIB) $(SHARED_LIB)
